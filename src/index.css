@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@800;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-black antialiased font-sans;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Custom scrollbar for desktop preview */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-black rounded-full;
+  }
+}
+
+/* Hide spin buttons in input fields */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Custom premium transitions and gradients */
+.glassmorphism {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glassmorphism-light {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Visual animations */
+@keyframes slideUp {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.tekina-page {
+  font-feature-settings: "kern" 1;
+}
+
+.tekina-logo {
+  color: #fff;
+  font-family: "Noto Sans JP", "Arial Black", sans-serif;
+  letter-spacing: -0.08em;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 2px #000;
+  text-shadow:
+    4px 4px 0 #000,
+    7px 7px 0 rgba(0, 0, 0, 0.22);
+  transform: skewX(-10deg);
+}
+
+.tekina-workspace,
+.tekina-workspace input,
+.tekina-workspace select,
+.tekina-workspace button,
+.tekina-workspace textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.tekina-workspace .glassmorphism,
+.tekina-workspace .glassmorphism-light {
+  background: #fff;
+  backdrop-filter: none;
+  border: 2px solid #000;
+  box-shadow: none;
+}
+
+.tekina-workspace [class*="rounded-2xl"],
+.tekina-workspace [class*="rounded-xl"],
+.tekina-workspace [class*="rounded-lg"],
+.tekina-workspace [class*="rounded-full"] {
+  border-radius: 0 !important;
+}
+
+.tekina-workspace [class*="bg-slate-950"],
+.tekina-workspace [class*="bg-slate-900"],
+.tekina-workspace [class*="bg-slate-800"] {
+  background-color: #fff !important;
+}
+
+.tekina-workspace [class*="border-slate"],
+.tekina-workspace [class*="border-teal"],
+.tekina-workspace [class*="border-emerald"],
+.tekina-workspace [class*="border-amber"],
+.tekina-workspace [class*="border-indigo"] {
+  border-color: #000 !important;
+}
+
+.tekina-workspace [class*="text-slate-100"],
+.tekina-workspace [class*="text-slate-200"],
+.tekina-workspace [class*="text-slate-300"],
+.tekina-workspace [class*="text-slate-350"] {
+  color: #000 !important;
+}
+
+.tekina-workspace [class*="text-slate-400"],
+.tekina-workspace [class*="text-slate-450"],
+.tekina-workspace [class*="text-slate-500"],
+.tekina-workspace [class*="text-slate-550"],
+.tekina-workspace [class*="text-slate-600"],
+.tekina-workspace [class*="text-slate-650"],
+.tekina-workspace [class*="text-slate-700"] {
+  color: #5a5a5a !important;
+}
+
+.tekina-workspace input,
+.tekina-workspace select,
+.tekina-workspace textarea {
+  border: 2px solid #000 !important;
+  color: #000 !important;
+  background: #fff !important;
+}
+
+.tekina-workspace input::placeholder,
+.tekina-workspace textarea::placeholder {
+  color: #767676 !important;
+}
+
+.tekina-workspace button {
+  box-shadow: none !important;
+}
+
+.tekina-workspace button[class*="bg-teal"],
+.tekina-workspace button[class*="bg-emerald"] {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.tekina-workspace button[class*="bg-slate"] {
+  border: 2px solid #000;
+}
+
+.tekina-workspace hr {
+  border-color: #000 !important;
+}
+
+.tekina-workspace pre,
+.tekina-workspace code {
+  background: #f1f1ec !important;
+  color: #000 !important;
+  border-radius: 0 !important;
+}
+
+@media (max-width: 640px) {
+  .tekina-logo {
+    -webkit-text-stroke-width: 1.5px;
+    text-shadow:
+      3px 3px 0 #000,
+      5px 5px 0 rgba(0, 0, 0, 0.22);
+  }
+}
