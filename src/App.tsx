@@ -251,12 +251,14 @@ export default function App() {
       <header className={`sticky top-0 z-50 border-b-2 border-black bg-[#dadada] transition-transform duration-300 ${showHeader ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="grid h-[76px] grid-cols-3 items-center px-5 sm:h-[100px] sm:px-[13.25vw]">
           <a href="#top" className="tekina-logo text-3xl font-black leading-none sm:text-5xl" aria-label="Vietnam travel cost">
-            Yustrip
+            Yus trip
           </a>
 
-          <button className="mx-auto flex h-12 w-12 items-center justify-center text-black" aria-label="Open menu">
+          <div></div>
+
+          {/* <button className="mx-auto flex h-12 w-12 items-center justify-center text-black" aria-label="Open menu">
             <Menu className="h-9 w-9 stroke-[2.5]" />
-          </button>
+          </button> */}
 
           <div className="flex items-center justify-end gap-4 sm:gap-9">
             <button className="hidden h-12 w-12 items-center justify-center sm:flex" aria-label="Search">
@@ -302,7 +304,7 @@ export default function App() {
           <div className="relative min-h-[420px] overflow-hidden border-t-2 border-black lg:min-h-0 lg:border-l-2 lg:border-t-0">
             <iframe
               className="h-full min-h-[420px] w-full"
-              src="https://www.youtube.com/embed/rL_pTWWOiRs?autoplay=1&rel=0&showinfo=0&playsinline=0&mute=1&loop=1&vq=hd2160"
+              src="https://www.youtube.com/embed/rL_pTWWOiRs?autoplay=1&rel=0&showinfo=0&mute=1&loop=1&vq=hd2160"
               title="Phú Yên Cinematic - Sony FX30"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -329,7 +331,7 @@ export default function App() {
             </p>
           </div>
           <div className="grid grid-cols-1 bg-black gap-[2px] md:grid-cols-2 lg:grid-cols-3">
-            {[shotUni, "https://youtu.be/HBipWKUup5k", shot6Video, shot1Video, shot2Video, shot5Video].map((videoSrc, index) => (
+            {[shotUni, shot7Video, shot6Video, shot1Video, shot2Video, shot5Video].map((videoSrc, index) => (
               <div key={index} className="relative aspect-[4/5] bg-white lg:aspect-square">
                 <VideoPlayer
                   src={videoSrc}
