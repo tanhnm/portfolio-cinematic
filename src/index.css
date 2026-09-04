@@ -396,7 +396,7 @@ html {
   display: flex;
   min-height: 82px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 24px;
   padding: 0 7vw;
 }
@@ -660,9 +660,23 @@ html {
   visibility: hidden;
   will-change: transform;
 }
-.portfolio-wipe::before { position: absolute; top: 0; bottom: 0; left: 0; width: 8px; background: var(--mist); content: ''; }
-.portfolio-wipe span { position: relative; z-index: 1; font: 800 clamp(1.5rem, 3vw, 3.4rem) 'Outfit', sans-serif; letter-spacing: -.06em; }
-.portfolio-wipe i { display: block; width: min(24vw, 330px); height: 1px; background: rgba(243,241,233,.65); }
+.portfolio-wipe__video {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .96;
+  filter: saturate(.86) contrast(1.06) brightness(.86);
+  transform: scale(1.04);
+}
+.portfolio-wipe::before { position: absolute; z-index: 1; top: 0; bottom: 0; left: 0; width: 8px; background: var(--mist); content: ''; opacity: 0; transition: opacity 400ms ease; }
+.portfolio-wipe::after { position: absolute; z-index: 0; inset: 0; background: rgba(10,11,9,.42); content: ''; opacity: 0; transition: opacity 500ms ease; }
+.portfolio-wipe span { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 11px; color: var(--warm-white); font: 500 clamp(2.6rem, 6vw, 7rem)/.85 'Outfit', sans-serif; letter-spacing: -.075em; opacity: 0; text-align: center; transform: translateY(20px); transition: opacity 550ms ease, transform 700ms cubic-bezier(.16, 1, .3, 1); }
+.portfolio-wipe span small { font: 800 10px ui-monospace, monospace; letter-spacing: .2em; }
+.portfolio-wipe--title-visible::before, .portfolio-wipe--title-visible::after { opacity: 1; }
+.portfolio-wipe--title-visible span { opacity: 1; transform: translateY(0); }
 .portfolio-wipe--cover,
 .portfolio-wipe--reveal { visibility: visible; }
 .portfolio-wipe--cover { transform: translate3d(0, 0, 0); transition: transform 1000ms cubic-bezier(.77, 0, .18, 1); }
@@ -671,12 +685,12 @@ html {
 
 @media (max-width: 640px) {
   .portfolio-wipe { padding: 0 24px; }
-  .portfolio-wipe span { font-size: 1.8rem; }
-  .portfolio-wipe i { width: 70px; }
+  .portfolio-wipe span { font-size: clamp(2.6rem, 14vw, 4.4rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .portfolio-wipe--cover, .portfolio-wipe--reveal { transition-duration: 1ms; }
+  .portfolio-wipe__video { display: none; }
 }
 
 /* About: a portfolio timeline that keeps resume detail easy to scan. */
