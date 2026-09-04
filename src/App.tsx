@@ -12,6 +12,7 @@ import shot5Video from "./assets/cinematic/PhuYenShort-1.mp4";
 import shot6Video from "./assets/cinematic/Shot_6.mp4";
 import shot7Video from "./assets/cinematic/Shot_7.mp4";
 import shotUni from "./assets/cinematic/Shot_Uni.mp4";
+import vuNoBenLucVideo from "./assets/cinematic/VuNoBenLucProject.mp4";
 
 type PortfolioMode = "engineer" | "cinematic";
 type TransitionStage = "idle" | "cover" | "reveal";
@@ -27,6 +28,12 @@ const MODE_TITLE_START_MS = MODE_SWAP_MS - MODE_TITLE_MS;
 const EDGE_SCROLL_THRESHOLD = 12;
 
 const FILMS = [
+  {
+    src: vuNoBenLucVideo,
+    title: "Vụ Nổ Bến Lức",
+    meta: "Bến Lức, Long An / 2025",
+    format: "21:9",
+  },
   {
     src: shotUni,
     title: "Passing through",
