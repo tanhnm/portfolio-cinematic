@@ -61,7 +61,7 @@ const EXPERIENCE = [
     ],
   },
   {
-    company: "DR Digital",
+    company: "DR Digital — AI Automation & CMS",
     role: "Frontend Developer",
     period: "Jun 2025 — Feb 2026",
     location: "Ho Chi Minh, Viet Nam",
@@ -95,7 +95,7 @@ const EXPERIENCE = [
     ],
   },
   {
-    company: "FPT Software Academy",
+    company: "FPT Software Academy — Internship",
     role: "Frontend Developer Intern",
     period: "Jan 2024 — Apr 2024",
     location: "Ho Chi Minh, Viet Nam",
@@ -157,64 +157,79 @@ export function AboutSection() {
   };
 
   return (
-    <section id="about" className="border-t-2 border-black bg-[#f7f7f2]" data-reveal>
+    <section
+      id="about"
+      className="border-t-2 border-black bg-[#f7f7f2]"
+      data-reveal
+    >
       <SectionHeading
         kicker="About me"
         title="Huynh Nguyen Minh Tan"
         sub="Frontend-focused Software Engineer with production experience across enterprise applications, cross-platform mobile products, realtime systems, and product-driven marketplace workflows."
       />
 
-      <div className="mx-auto grid max-w-[1500px] gap-6 p-4 sm:p-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-[7vw]">
-        {/* Experience timeline */}
-        <div className="border-2 border-black bg-white p-5 font-mono sm:p-8">
-          <h3 className="mb-6 text-2xl font-black uppercase">Experience</h3>
-          <div className="space-y-6">
-            {EXPERIENCE.map((job) => (
-              <div
-                key={job.company}
-                className={`border-l-4 pl-5 ${job.highlight ? "border-black bg-[#b9efff] p-5 -ml-5" : "border-black"}`}
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <strong className="text-lg font-black">{job.company}</strong>
-                  <span className="text-xs font-black uppercase text-neutral-500">
-                    {job.period}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm font-bold">
-                  {job.role} ·{" "}
-                  <span className="font-normal text-neutral-500">
-                    {job.location}
-                  </span>
-                </p>
-                <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-neutral-700">
-                  {job.points.map((point) => (
-                    <li key={point} className="flex gap-2">
-                      <span aria-hidden className="mt-[2px]">
-                        ▸
-                      </span>
-                      <span>{renderBold(point)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <h3 className="mb-4 mt-10 text-2xl font-black uppercase">
-            Education
-          </h3>
-          <div className="border-l-4 border-black pl-5">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <strong className="text-lg font-black">FPT University</strong>
-              <span className="text-xs font-black uppercase text-neutral-500">
-                May 2022 — May 2025
-              </span>
+      <div className="about-layout mx-auto grid max-w-[1500px] gap-6 p-4 sm:p-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-[7vw]">
+        <section
+          className="experience-panel"
+          aria-labelledby="experience-title"
+        >
+          <div className="experience-panel__intro">
+            <div>
+              <p className="experience-panel__eyebrow">Selected trajectory</p>
+              <h3 id="experience-title">Experience</h3>
             </div>
-            <p className="mt-1 text-sm font-bold">
-              Bachelor of Software Engineering
+            <p>
+              Product thinking, frontend craft, and practical systems built for
+              the people using them.
             </p>
           </div>
-        </div>
+
+          <div className="experience-timeline">
+            {EXPERIENCE.map((job, index) => {
+              const [company, title] = job.company.split(" — ");
+              return (
+                <article
+                  key={job.company}
+                  className={`experience-card ${job.highlight ? "experience-card--featured" : ""}`}
+                >
+                  <div className="experience-card__rail" aria-hidden="true">
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <i />
+                  </div>
+                  <div className="experience-card__body">
+                    <header className="experience-card__header">
+                      <div>
+                        <p className="experience-card__company">{company}</p>
+                        <h4>{title}</h4>
+                      </div>
+                      <p className="experience-card__period">{job.period}</p>
+                    </header>
+                    <div className="experience-card__meta">
+                      <span>{job.role}</span>
+                      <span>{job.location}</span>
+                    </div>
+                    <ul className="experience-card__points">
+                      {job.points.map((point) => (
+                        <li key={point}>
+                          <span>{renderBold(point)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="education-card">
+            <p className="experience-panel__eyebrow">Education</p>
+            <div>
+              <strong>FPT University</strong>
+              <span>May 2022 — May 2025</span>
+            </div>
+            <p>Bachelor of Software Engineering</p>
+          </div>
+        </section>
 
         {/* Contact + skills sidebar */}
         <div className="space-y-6">
@@ -350,7 +365,11 @@ const STACK = [
 
 export function VeoGiaoSection() {
   return (
-    <section id="veogiao" className="border-t-2 border-black bg-[#b9efff]" data-reveal>
+    <section
+      id="veogiao"
+      className="border-t-2 border-black bg-[#b9efff]"
+      data-reveal
+    >
       <SectionHeading
         kicker="Flagship case study"
         title="Vèo Giao"

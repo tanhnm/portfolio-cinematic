@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { type RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { AboutSection, VeoGiaoSection } from './components/PortfolioSections';
 import shot1Video from './assets/cinematic/Shot_1.mp4';
 import shot2Video from './assets/cinematic/Shot_2.mp4';
@@ -8,162 +8,335 @@ import shot7Video from './assets/cinematic/Shot_7.mp4';
 import shotUni from './assets/cinematic/Shot_Uni.mp4';
 
 type PortfolioMode = 'engineer' | 'cinematic';
+type TransitionStage = 'idle' | 'cover' | 'reveal';
 
-const getYouTubeId = (url: string): string | null => {
-  try {
-    const u = new URL(url);
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
-    if (u.hostname.includes('youtube.com')) return u.searchParams.get('v') || u.pathname.split('/').pop() || null;
-  } catch {
-    // Local videos do not need a YouTube id.
-  }
-  return null;
-};
+const MODE_TRANSITION_MS = 2000;
+const MODE_COVER_MS = MODE_TRANSITION_MS / 2;
+const EDGE_SCROLL_THRESHOLD = 12;
 
-const VideoPlayer = ({ src, className }: { src: string; className?: string }) => {
+const FILMS = [
+  { src: shotUni, title: 'Passing through', meta: 'Hồ Chí Minh / 2025', format: '7:10' },
+  { src: shot7Video, title: 'After rain', meta: 'Vietnam / 2025', format: '4:5' },
+  { src: shot6Video, title: 'A slower morning', meta: 'Vietnam / 2025', format: '4:5' },
+  { src: shot1Video, title: 'In motion', meta: 'Phú Yên / 2025', format: '16:10' },
+  { src: shot2Video, title: 'Salt and light', meta: 'Phú Yên / 2025', format: '4:5' },
+  { src: shot5Video, title: 'Southbound', meta: 'Phú Yên / 2025', format: '4:5' },
+];
+
+const PRACTICE = [
+  ['01', 'Observe', 'Start with the real world: people, constraints, and the behaviour underneath the brief.'],
+  ['02', 'Shape', 'Turn complexity into a system that feels clear, useful, and calm to navigate.'],
+  ['03', 'Ship', 'Build the detail all the way through — responsive, resilient, and ready for use.'],
+] as const;
+
+function VideoPlayer({ src, className }: { src: string; className?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const youtubeId = getYouTubeId(src);
 
   useEffect(() => {
-    if (youtubeId || !videoRef.current) return;
+    if (!videoRef.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => entry.isIntersecting ? videoRef.current?.play().catch(() => undefined) : videoRef.current?.pause(),
       { threshold: 0.12 },
     );
     observer.observe(videoRef.current);
     return () => observer.disconnect();
-  }, [youtubeId]);
-
-  if (youtubeId) {
-    return (
-      <div className={`relative overflow-hidden ${className ?? ''}`}>
-        <iframe
-          className="absolute top-0 left-1/2 h-full -translate-x-1/2"
-          style={{ aspectRatio: '16 / 9' }}
-          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=0&showinfo=0&playsinline=1&rel=0&fs=0&mute=1&loop=1&vq=hd2160`}
-          title="Cinematic film"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        />
-        <div className="absolute inset-0 z-10" />
-      </div>
-    );
-  }
+  }, []);
 
   return (
-    <video ref={videoRef} className={className} loop muted playsInline autoPlay>
-      <source src={src} type={src.endsWith('.mov') ? 'video/quicktime' : 'video/mp4'} />
+    <video ref={videoRef} className={className} loop muted playsInline autoPlay preload="metadata">
+      <source src={src} type="video/mp4" />
     </video>
   );
-};
+}
 
-const ModeSwitch = ({ mode, onChange }: { mode: PortfolioMode; onChange: (mode: PortfolioMode) => void }) => (
-  <div className="mode-switch" role="group" aria-label="Portfolio view">
-    <button className={mode === 'engineer' ? 'is-active' : ''} onClick={() => onChange('engineer')} aria-pressed={mode === 'engineer'}>
-      <span>01</span> Engineer
-    </button>
-    <button className={mode === 'cinematic' ? 'is-active' : ''} onClick={() => onChange('cinematic')} aria-pressed={mode === 'cinematic'}>
-      <span>02</span> Cinematic
-    </button>
-  </div>
-);
-
-function EngineerPrelude({ onExplore }: { onExplore: () => void }) {
+function ModeSwitch({ mode, onChange }: { mode: PortfolioMode; onChange: (mode: PortfolioMode) => void }) {
   return (
-    <section className="world-bridge border-t-2 border-black bg-[#f7f7f2]" data-reveal>
-      <div className="world-bridge__copy">
-        <p className="eyebrow">The other side</p>
-        <h2>Built with logic.<br />Remembered in light.</h2>
-        <p>Outside the interface, I collect the landscapes, streets, and in-between moments that shape how I see a product.</p>
-        <button className="text-link" onClick={onExplore}>Explore cinematic work <span aria-hidden>→</span></button>
+    <div className="mode-switch" role="group" aria-label="Choose a portfolio view">
+      <button className={mode === 'engineer' ? 'is-active' : ''} onClick={() => onChange('engineer')} aria-pressed={mode === 'engineer'}>
+        <span>01</span><b>Engineer</b>
+      </button>
+      <button className={mode === 'cinematic' ? 'is-active' : ''} onClick={() => onChange('cinematic')} aria-pressed={mode === 'cinematic'}>
+        <span>02</span><b>Cinematic</b>
+      </button>
+    </div>
+  );
+}
+
+function ScrollRail({ fillRef, valueRef }: { fillRef: RefObject<HTMLElement | null>; valueRef: RefObject<HTMLElement | null> }) {
+  return (
+    <div className="scroll-rail" aria-hidden="true">
+      <span>Scroll</span>
+      <i><b ref={fillRef} /></i>
+      <em ref={valueRef}>00</em>
+    </div>
+  );
+}
+
+function PortfolioHero({ mode, onChange }: { mode: PortfolioMode; onChange: (mode: PortfolioMode) => void }) {
+  const isEngineer = mode === 'engineer';
+  const primaryTarget = isEngineer ? '#veogiao' : '#films';
+
+  return (
+    <section className="hero-section" aria-label={isEngineer ? 'Software engineering introduction' : 'Cinematic portfolio introduction'}>
+      <div className="hero-section__copy">
+        <div className="hero-section__inner">
+          <p className="eyebrow">{isEngineer ? '01 — Software engineer' : '02 — Cinematic creator'}</p>
+          <p className="hero-section__overline">Huynh Nguyen Minh Tan</p>
+          <h1>{isEngineer ? <>Building clarity<br />for <i>real life.</i></> : <>Light, place,<br />and <i>the in-between.</i></>}</h1>
+          <p className="hero-section__lede">
+            {isEngineer
+              ? 'I build thoughtful products for people, teams, and complex operations — with a creative eye for the details that make software feel human.'
+              : 'Visual notes from Vietnam: landscapes, street scenes, and small moments that deserve to be held a little longer.'}
+          </p>
+          <div className="hero-section__actions">
+            <a href={primaryTarget} className="primary-link">{isEngineer ? 'See selected work' : 'Enter the film journal'} <span aria-hidden>→</span></a>
+            <button className="secondary-link" onClick={() => onChange(isEngineer ? 'cinematic' : 'engineer')}>
+              {isEngineer ? 'Switch to cinematic' : 'Switch to engineering'} <span aria-hidden>↗</span>
+            </button>
+          </div>
+        </div>
+        <div className="hero-section__coordinates"><span>10° 49′ N</span><span>106° 38′ E</span></div>
       </div>
-      <div className="world-bridge__media">
-        <VideoPlayer src={shot6Video} className="h-full w-full object-cover" />
-        <p>Vietnam / personal studies</p>
+      <div className="hero-section__media">
+        <VideoPlayer src={shot5Video} className="h-full w-full object-cover" />
+        <div className="hero-section__vignette" />
+        <div className="hero-section__stamp"><span>{isEngineer ? 'Systems / interfaces' : 'Phú Yên, VN'}</span><span>{isEngineer ? 'Frontend / product' : 'Film study no. 01'}</span></div>
+        <p className="hero-section__side-title">{isEngineer ? 'The builder' : 'The observer'}</p>
       </div>
+      <a href={primaryTarget} className="hero-section__scroll-cue"><span>Scroll to explore</span><i /></a>
+    </section>
+  );
+}
+
+function EngineeringIntroduction({ onExplore }: { onExplore: () => void }) {
+  return (
+    <section className="engineering-intro" data-reveal>
+      <div className="engineering-intro__headline">
+        <p className="eyebrow">Engineering practice</p>
+        <h2>Good software is<br />a <i>felt</i> experience.</h2>
+      </div>
+      <p className="engineering-intro__statement">The same sensitivity that draws me to a frame shapes the way I build a product: attention to rhythm, context, and what a person needs next.</p>
+      <div className="practice-grid">
+        {PRACTICE.map(([number, title, text]) => (
+          <article key={number}>
+            <span>{number}</span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+      <button className="engineering-intro__link" onClick={onExplore}>There is another way I tell stories <span>→</span></button>
     </section>
   );
 }
 
 function CinematicGallery() {
-  const films = [
-    { src: shotUni, title: 'Passing through', meta: 'Hồ Chí Minh / 2025' },
-    { src: shot7Video, title: 'After rain', meta: 'Vietnam / 2025' },
-    { src: shot6Video, title: 'A slower morning', meta: 'Vietnam / 2025' },
-    { src: shot1Video, title: 'In motion', meta: 'Phú Yên / 2025' },
-    { src: shot2Video, title: 'Salt and light', meta: 'Phú Yên / 2025' },
-    { src: shot5Video, title: 'Southbound', meta: 'Phú Yên / 2025' },
-  ];
-
   return (
     <section id="films" className="films-section" data-reveal>
       <div className="films-intro">
-        <p className="eyebrow">Selected moments</p>
-        <h2>Stories found<br />between destinations.</h2>
-        <p>Small studies in rhythm, place, weather, and the people moving through them.</p>
+        <div><p className="eyebrow">Selected visual studies</p><span>2025 / Vietnam</span></div>
+        <h2>Not postcards.<br /><i>Fragments of feeling.</i></h2>
+        <p>Travelling slowly enough to notice the texture of a place: light on concrete, a road after rain, the way a day slips into evening.</p>
       </div>
       <div className="films-grid">
-        {films.map((film, index) => (
+        {FILMS.map((film, index) => (
           <article key={film.title} className={`film-card film-card--${index + 1}`}>
             <VideoPlayer src={film.src} className="film-card__video h-full w-full object-cover" />
             <div className="film-card__caption">
-              <div><p>{film.meta}</p><h3>{film.title}</h3></div>
-              <span aria-hidden>↗</span>
+              <div><p>{film.meta} <span>— {film.format}</span></p><h3>{film.title}</h3></div>
+              <span className="film-card__arrow" aria-hidden>↗</span>
             </div>
           </article>
         ))}
+      </div>
+      <p className="films-outro">Each frame is a small invitation to look twice.</p>
+    </section>
+  );
+}
+
+function ChapterTransition({ onArrive, canTransition }: { onArrive: () => void; canTransition: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const hasArrived = useRef(false);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !hasArrived.current && canTransition) {
+        hasArrived.current = true;
+        onArrive();
+      }
+    }, { threshold: 0.58 });
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [canTransition, onArrive]);
+
+  return (
+    <section ref={sectionRef} className="chapter-transition" aria-label="Transition to the cinematic portfolio">
+      <div className="chapter-transition__content">
+        <p className="eyebrow">End of act I</p>
+        <p className="chapter-transition__index">01 <span>→</span> 02</p>
+        <h2>Now, let the<br /><i>light lead.</i></h2>
+        <p>Moving from systems to stories.</p>
       </div>
     </section>
   );
 }
 
+function CinematicOutro({ onReturn }: { onReturn: () => void }) {
+  return (
+    <section className="cinematic-outro" data-reveal>
+      <p className="eyebrow">End credits</p>
+      <h2>The eye behind the<br /><i>interface.</i></h2>
+      <p>Behind these moving images is the same person who builds products with care, patience, and a feeling for the details.</p>
+      <button className="text-link" onClick={onReturn}>Return to engineering <span>←</span></button>
+    </section>
+  );
+}
+
 export default function App() {
-  const [mode, setMode] = useState<PortfolioMode>('cinematic');
+  const [mode, setMode] = useState<PortfolioMode>('engineer');
   const [showHeader, setShowHeader] = useState(true);
+  const [transitionStage, setTransitionStage] = useState<TransitionStage>('idle');
+  const [nextMode, setNextMode] = useState<PortfolioMode>('cinematic');
+  const transitionTimers = useRef<number[]>([]);
+  const modeRef = useRef(mode);
+  const transitionStageRef = useRef(transitionStage);
+  const scrollDirectionRef = useRef<'up' | 'down' | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const headerVisibleRef = useRef(true);
+  const scrollRailFillRef = useRef<HTMLElement>(null);
+  const scrollRailValueRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    transitionStageRef.current = transitionStage;
+  }, [transitionStage]);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
+    let frameId: number | null = null;
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setShowHeader(!(currentScrollY > lastScrollY && currentScrollY > 100));
-      lastScrollY = currentScrollY;
+      if (frameId !== null) return;
+      frameId = window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const total = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+        const progress = Math.min(currentScrollY / total, 1);
+        if (currentScrollY !== lastScrollY) {
+          scrollDirectionRef.current = currentScrollY > lastScrollY ? 'down' : 'up';
+        }
+        const shouldShowHeader = !(currentScrollY > lastScrollY && currentScrollY > 110);
+        if (headerVisibleRef.current !== shouldShowHeader) {
+          headerVisibleRef.current = shouldShowHeader;
+          setShowHeader(shouldShowHeader);
+        }
+        scrollRailFillRef.current?.style.setProperty('transform', `scaleY(${progress})`);
+        if (scrollRailValueRef.current) {
+          scrollRailValueRef.current.textContent = String(Math.round(progress * 100)).padStart(2, '0');
+        }
+        lastScrollY = currentScrollY;
+        frameId = null;
+      });
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
   }, []);
+
+  useEffect(() => () => transitionTimers.current.forEach(window.clearTimeout), []);
 
   useEffect(() => {
     const nodes = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('is-visible'));
-    }, { threshold: 0.12, rootMargin: '0px 0px -36px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px' });
     nodes.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
   }, [mode]);
 
-  const changeMode = (next: PortfolioMode) => {
-    if (next === mode) return;
-    setMode(next);
-    window.setTimeout(() => document.querySelector('#top')?.scrollIntoView({ behavior: 'smooth' }), 60);
-  };
+  const changeMode = useCallback((next: PortfolioMode) => {
+    if (next === modeRef.current || transitionStageRef.current !== 'idle') return;
+    transitionTimers.current.forEach(window.clearTimeout);
+    transitionTimers.current = [];
+    setNextMode(next);
+    transitionStageRef.current = 'cover';
+    setTransitionStage('cover');
+
+    const swapTimer = window.setTimeout(() => {
+      const root = document.documentElement;
+      const previousScrollBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = 'auto';
+      window.scrollTo(0, 0);
+      root.style.scrollBehavior = previousScrollBehavior;
+      setMode(next);
+      window.requestAnimationFrame(() => setTransitionStage('reveal'));
+    }, MODE_COVER_MS);
+    const finishTimer = window.setTimeout(() => setTransitionStage('idle'), MODE_TRANSITION_MS);
+    transitionTimers.current.push(swapTimer, finishTimer);
+  }, []);
+
+  useEffect(() => {
+    const atCinematicStart = () => modeRef.current === 'cinematic' && window.scrollY <= EDGE_SCROLL_THRESHOLD;
+    const shouldReturnToEngineer = () => atCinematicStart() && transitionStageRef.current === 'idle';
+    const returnToEngineer = () => {
+      if (!shouldReturnToEngineer()) return false;
+      changeMode('engineer');
+      return true;
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (transitionStageRef.current !== 'idle') {
+        event.preventDefault();
+        return;
+      }
+      if (event.deltaY >= 0 || !returnToEngineer()) return;
+      event.preventDefault();
+    };
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (transitionStageRef.current !== 'idle' && ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) {
+        event.preventDefault();
+        return;
+      }
+      if (!['ArrowUp', 'PageUp', 'Home'].includes(event.key) || !returnToEngineer()) return;
+      event.preventDefault();
+    };
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartY.current = event.touches[0]?.clientY ?? null;
+    };
+    const handleTouchEnd = (event: TouchEvent) => {
+      const startY = touchStartY.current;
+      const endY = event.changedTouches[0]?.clientY;
+      touchStartY.current = null;
+      if (startY !== null && endY !== undefined && endY - startY > 44) returnToEngineer();
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [changeMode]);
 
   const isEngineer = mode === 'engineer';
-  const heroKicker = isEngineer ? '01 — Software engineer' : '02 — Cinematic creator';
-  const heroTitle = isEngineer ? <>Digital products<br />for the real world.</> : <>Cinematic<br />video<br />portfolio.</>;
-  const heroText = isEngineer
-    ? 'I build considered, production-ready experiences for complex systems, local businesses, and the people who rely on them.'
-    : 'A growing collection of landscapes, streets, and stories captured through the lens.';
 
   return (
-    <div className={`tekina-page portfolio-page mode-${mode} min-h-screen text-black selection:bg-sky-200`}>
+    <div className={`tekina-page portfolio-page mode-${mode} ${transitionStage !== 'idle' ? 'is-transitioning' : ''} min-h-screen text-black selection:bg-sky-200`}>
       <header className={`site-header sticky top-0 z-50 transition-transform duration-500 ${showHeader ? 'translate-y-0' : '-translate-y-full'}`}>
-        <div className="grid h-[76px] grid-cols-[1fr_auto] items-center px-5 sm:h-[90px] sm:px-[7vw]">
+        <div className="site-header__inner">
           <a href="#top" className="tekina-logo text-3xl font-black leading-none sm:text-4xl" aria-label="Home">Yus trip</a>
-          <div className="flex items-center gap-5">
+          <div className="site-header__controls">
             <ModeSwitch mode={mode} onChange={changeMode} />
-            <nav className="hidden items-center gap-5 font-mono text-xs font-black uppercase sm:flex">
+            <nav className="site-nav" aria-label="Main navigation">
               <a href={isEngineer ? '#veogiao' : '#films'}>Work</a>
               <a href="#about">About</a>
             </nav>
@@ -171,28 +344,26 @@ export default function App() {
         </div>
       </header>
 
-      <main id="top" className="mode-content" key={mode}>
-        <section className="hero-section grid min-h-[calc(100svh-76px)] border-b-2 border-black lg:grid-cols-[.95fr_1.05fr] sm:min-h-[calc(100svh-90px)]">
-          <div className="hero-section__copy flex items-center px-6 py-14 sm:px-[7vw]">
-            <div className="max-w-[650px]">
-              <p className="eyebrow">{heroKicker}</p>
-              <h1>{heroTitle}</h1>
-              <p className="hero-section__lede">{heroText}</p>
-              <div className="hero-section__actions">
-                <a href={isEngineer ? '#veogiao' : '#films'} className="primary-link">{isEngineer ? 'View selected work' : 'Watch the stories'} <span aria-hidden>→</span></a>
-                <button className="secondary-link" onClick={() => changeMode(isEngineer ? 'cinematic' : 'engineer')}>Meet my {isEngineer ? 'cinematic side' : 'engineering side'} <span aria-hidden>↗</span></button>
-              </div>
-            </div>
-          </div>
-          <div className="hero-section__media relative min-h-[400px] overflow-hidden border-t-2 border-black lg:min-h-0 lg:border-l-2 lg:border-t-0">
-            <iframe className="h-full min-h-[400px] w-full scale-[1.03]" src="https://www.youtube.com/embed/rL_pTWWOiRs?autoplay=1&rel=0&showinfo=0&mute=1&loop=1&playlist=rL_pTWWOiRs&vq=hd2160" title="Phú Yên Cinematic — Sony FX30" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
-            <div className="hero-section__stamp"><span>{isEngineer ? 'Product-minded' : 'Phú Yên, VN'}</span><span>{isEngineer ? 'Frontend / systems' : '2025 / Sony FX30'}</span></div>
-          </div>
-        </section>
-
-        {isEngineer ? <EngineerPrelude onExplore={() => changeMode('cinematic')} /> : <CinematicGallery />}
-        <VeoGiaoSection />
-        <AboutSection />
+      <ScrollRail fillRef={scrollRailFillRef} valueRef={scrollRailValueRef} />
+      <div className={`portfolio-wipe portfolio-wipe--${transitionStage}`} aria-hidden="true">
+        <span>{nextMode === 'cinematic' ? '02 — Cinematic' : '01 — Engineer'}</span>
+        <i />
+      </div>
+      <main id="top" className={`mode-content mode-content--${mode}`} key={mode}>
+        <PortfolioHero mode={mode} onChange={changeMode} />
+        {isEngineer ? (
+          <>
+            <EngineeringIntroduction onExplore={() => changeMode('cinematic')} />
+            <VeoGiaoSection />
+            <AboutSection />
+            <ChapterTransition onArrive={() => changeMode('cinematic')} canTransition={scrollDirectionRef.current === 'down'} />
+          </>
+        ) : (
+          <>
+            <CinematicGallery />
+            <CinematicOutro onReturn={() => changeMode('engineer')} />
+          </>
+        )}
       </main>
       <footer className="portfolio-footer"><span>Huynh Nguyen Minh Tan</span><span>Software engineer / cinematic creator</span><a href="#top">Back to top ↑</a></footer>
     </div>
