@@ -407,6 +407,7 @@ export default function App() {
   const transitionStageRef = useRef(transitionStage);
   const scrollDirectionRef = useRef<"up" | "down" | null>(null);
   const chapterReturnLockRef = useRef(false);
+  const arrivalLockRef = useRef(false);
   const touchStartY = useRef<number | null>(null);
   const headerVisibleRef = useRef(true);
   const scrollRailFillRef = useRef<HTMLElement>(null);
@@ -435,6 +436,11 @@ export default function App() {
         if (currentScrollY !== lastScrollY) {
           scrollDirectionRef.current =
             currentScrollY > lastScrollY ? "down" : "up";
+          if (scrollDirectionRef.current === "down") {
+            // A deliberate downward scroll re-arms edge-triggered switches,
+            // so arrival momentum right after a mode change never fires them.
+            arrivalLockRef.current = false;
+          }
           if (
             modeRef.current === "engineer" &&
             scrollDirectionRef.current === "up"
@@ -498,6 +504,7 @@ export default function App() {
         return;
       transitionTimers.current.forEach(window.clearTimeout);
       transitionTimers.current = [];
+      arrivalLockRef.current = true;
       setNextMode(next);
       setShowTransitionTitle(false);
       transitionStageRef.current = "cover";
@@ -555,9 +562,12 @@ export default function App() {
       modeRef.current === "cinematic" &&
       window.scrollY <= EDGE_SCROLL_THRESHOLD;
     const shouldReturnToEngineer = () =>
-      atCinematicStart() && transitionStageRef.current === "idle";
+      atCinematicStart() &&
+      transitionStageRef.current === "idle" &&
+      !arrivalLockRef.current;
     const returnToEngineer = () => {
       if (!shouldReturnToEngineer()) return false;
+      arrivalLockRef.current = true;
       chapterReturnLockRef.current = true;
       changeMode("engineer", "engineer-ending");
       return true;
@@ -565,16 +575,6 @@ export default function App() {
 
     const handleWheel = (event: WheelEvent) => {
       if (transitionStageRef.current !== "idle") {
-        event.preventDefault();
-        return;
-      }
-      if (
-        modeRef.current === "engineer" &&
-        chapterReturnLockRef.current &&
-        event.deltaY > 0
-      ) {
-        chapterReturnLockRef.current = false;
-        changeMode("cinematic");
         event.preventDefault();
         return;
       }
@@ -612,15 +612,6 @@ export default function App() {
       const endY = event.changedTouches[0]?.clientY;
       touchStartY.current = null;
       if (startY === null || endY === undefined) return;
-      if (
-        modeRef.current === "engineer" &&
-        chapterReturnLockRef.current &&
-        startY - endY > 44
-      ) {
-        chapterReturnLockRef.current = false;
-        changeMode("cinematic");
-        return;
-      }
       if (endY - startY > 44) returnToEngineer();
     };
 
@@ -704,7 +695,8 @@ export default function App() {
               onArrive={() => changeMode("cinematic")}
               canTransition={() =>
                 scrollDirectionRef.current === "down" &&
-                !chapterReturnLockRef.current
+                !chapterReturnLockRef.current &&
+                !arrivalLockRef.current
               }
             />
           </>
