@@ -783,7 +783,7 @@ html {
   flex: 0 0 auto;
   margin: 3px 0 0;
   color: #656761;
-  font: 800 9px ui-monospace, monospace;
+  font: 800 12px ui-monospace, monospace;
   letter-spacing: .08em;
   text-align: right;
   text-transform: uppercase;
