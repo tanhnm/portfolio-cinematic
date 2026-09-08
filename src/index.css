@@ -851,21 +851,98 @@ html {
 }
 .experience-card--featured + .experience-card { border-top: 0; }
 .experience-card--featured .experience-card__rail i { border-color: var(--ink); background: var(--mist); box-shadow: 0 0 0 4px rgba(196,232,236,.55); }
+.education-section {
+  margin-top: clamp(36px, 5vw, 54px);
+  padding-top: clamp(28px, 3.5vw, 42px);
+  border-top: 1px solid #e2e3dd;
+}
+.education-section__header {
+  margin-bottom: 22px;
+}
+.education-section__title {
+  margin: 0;
+  color: var(--ink);
+  font: 500 clamp(1.8rem, 2.8vw, 2.5rem)/1 'Outfit', sans-serif;
+  letter-spacing: -.065em;
+}
 .education-card {
+  position: relative;
   display: grid;
   grid-template-columns: 54px minmax(0, 1fr);
-  align-items: center;
-  gap: 0;
-  margin-top: 12px;
-  border-top: 1px solid var(--ink);
-  border-bottom: 1px solid var(--ink);
-  padding: 23px 0;
+  padding: clamp(22px, 2.5vw, 32px) clamp(16px, 2vw, 24px);
+  border: 1px solid var(--ink);
+  background: #fbfbf8;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.education-card .experience-panel__eyebrow { grid-row: span 2; margin: 0; }
-.education-card div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px; }
-.education-card strong { font: 500 1.25rem 'Outfit', sans-serif; letter-spacing: -.04em; }
-.education-card span { color: #656761; font: 800 9px ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
-.education-card > p:last-child { grid-column: 2; margin: 4px 0 0; color: #555750; font: 400 12px 'Inter', sans-serif; }
+.education-card:hover {
+  background: #f6f6f1;
+}
+.education-card__rail {
+  position: relative;
+  z-index: 1;
+  padding-top: 2px;
+}
+.education-card__badge {
+  display: block;
+  color: #777970;
+  font: 800 9px ui-monospace, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.education-card__dot {
+  display: block;
+  width: 9px;
+  height: 9px;
+  margin: 12px 0 0 10px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: #fff;
+}
+.education-card__body {
+  min-width: 0;
+}
+.education-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.education-card__school {
+  margin: 0 0 6px;
+  color: #474944;
+  font: 800 12px ui-monospace, monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.education-card__degree {
+  margin: 0;
+  color: var(--ink);
+  font: 500 clamp(1.35rem, 2vw, 1.75rem)/1.1 'Outfit', sans-serif;
+  letter-spacing: -.05em;
+}
+.education-card__period {
+  flex: 0 0 auto;
+  margin: 2px 0 0;
+  color: #656761;
+  font: 800 9px ui-monospace, monospace;
+  letter-spacing: .08em;
+  text-align: right;
+  text-transform: uppercase;
+}
+.education-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+}
+.education-card__meta span {
+  border: 1px solid #c9cbc4;
+  color: #494b45;
+  padding: 4px 8px;
+  font: 700 9px ui-monospace, monospace;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
 
 @media (max-width: 640px) {
   .experience-panel { padding: 25px 18px; }
@@ -879,7 +956,11 @@ html {
   .experience-card__meta { margin-top: 14px; }
   .experience-card__points li { font-size: 12px; }
   .experience-card--featured { margin-right: -8px; margin-left: -8px; padding-right: 8px; padding-left: 8px; }
-  .education-card { grid-template-columns: 39px minmax(0, 1fr); }
-  .education-card div { display: block; }
-  .education-card span { display: block; margin-top: 7px; }
+  .education-section { margin-top: 28px; padding-top: 20px; }
+  .education-card { grid-template-columns: 36px minmax(0, 1fr); padding: 18px 14px; }
+  .education-card__dot { margin-left: 5px; }
+  .education-card__header { display: block; }
+  .education-card__period { margin-top: 10px; text-align: left; }
+  .education-card__degree { font-size: 1.25rem; }
+  .education-card__meta { margin-top: 12px; }
 }

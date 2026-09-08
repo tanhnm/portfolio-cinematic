@@ -1,6 +1,7 @@
 {
   "hosting": {
-    "public": "public",
+    "site": "tanhnm-portfolio",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",

@@ -588,15 +588,31 @@ export function AboutSection() {
               );
             })}
           </div>
-          <div>
-            <p className="experience-panel__eyebrow">Education</p>
-          </div>
-          <div className="education-card">
-            <div>
-              <strong>FPT University</strong>
-              <span>May 2022 — May 2025</span>
+          <div className="education-section">
+            <div className="education-section__header">
+              <p className="experience-panel__eyebrow">Academic Background</p>
+              <h4 className="education-section__title">Education</h4>
             </div>
-            <p>Bachelor of Software Engineering</p>
+
+            <div className="education-card">
+              <div className="education-card__rail" aria-hidden="true">
+                <span className="education-card__badge">EDU</span>
+                <i className="education-card__dot" />
+              </div>
+              <div className="education-card__body">
+                <header className="education-card__header">
+                  <div>
+                    <p className="education-card__school">FPT University</p>
+                    <h5 className="education-card__degree">Bachelor of Software Engineering</h5>
+                  </div>
+                  <p className="education-card__period">May 2022 — May 2025</p>
+                </header>
+                <div className="education-card__meta">
+                  <span>Major: Software Engineering</span>
+                  <span>Ho Chi Minh, Viet Nam</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
