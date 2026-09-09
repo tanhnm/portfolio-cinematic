@@ -247,10 +247,6 @@ function PortfolioHero({
           {isEngineer ? "The builder" : "The observer"}
         </p>
       </div>
-      <a href={primaryTarget} className="hero-section__scroll-cue">
-        <span>Scroll to explore</span>
-        <i />
-      </a>
     </section>
   );
 }
