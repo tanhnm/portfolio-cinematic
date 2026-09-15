@@ -119,6 +119,24 @@ describe("video lifecycle", () => {
     act(() => intersect([{ isIntersecting: false }]));
     expect(HTMLMediaElement.prototype.pause).toHaveBeenCalled();
   });
+  it("supports an automatic hero presentation without a pause control", async () => {
+    const { container } = render(
+      <VideoPlayer
+        src="/hero.mp4"
+        poster="/hero.webp"
+        label="Hero film"
+        showControls={false}
+      />,
+    );
+    expect(screen.queryByRole("button")).toBeNull();
+    await act(async () => intersect([{ isIntersecting: true }]));
+    vi.mocked(HTMLMediaElement.prototype.pause).mockClear();
+    act(() => intersect([{ isIntersecting: false }]));
+    expect(container.querySelector("video")?.getAttribute("src")).toBe(
+      "/hero.mp4",
+    );
+    expect(HTMLMediaElement.prototype.pause).toHaveBeenCalled();
+  });
   it("respects reduced motion while still allowing deliberate playback", async () => {
     reducedMotion = true;
     const { container } = render(film);

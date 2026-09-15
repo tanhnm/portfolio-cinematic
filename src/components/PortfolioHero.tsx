@@ -70,6 +70,7 @@ export function PortfolioHero({
           poster="/media/PhuYenShort-1.webp"
           label="Phú Yên coastal study"
           priority
+          showControls={false}
         />
         <div className="hero-section__vignette" />
         <div className="hero-section__stamp">
@@ -79,6 +80,9 @@ export function PortfolioHero({
         <p className="hero-section__side-title">
           {isEngineer ? "The builder" : "The observer"}
         </p>
+        <a className="hero-section__scroll-cue" href={primaryTarget}>
+          Scroll to explore <i aria-hidden="true" />
+        </a>
       </div>
     </section>
   );

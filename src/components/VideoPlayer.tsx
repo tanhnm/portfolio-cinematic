@@ -6,6 +6,7 @@ interface VideoPlayerProps {
   label: string;
   className?: string;
   priority?: boolean;
+  showControls?: boolean;
 }
 
 /** No video request until visible. Posters remain useful without autoplay/network. */
@@ -15,6 +16,7 @@ export function VideoPlayer({
   label,
   className = "",
   priority = false,
+  showControls = true,
 }: VideoPlayerProps) {
   const root = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -119,15 +121,17 @@ export function VideoPlayer({
           setPlaying(false);
         }}
       />
-      <button
-        type="button"
-        className="video-player__control"
-        onClick={toggle}
-        aria-label={`${playing ? "Pause" : failed ? "Retry" : "Play"} ${label}`}
-      >
-        <span aria-hidden="true">{playing ? "Ⅱ" : "▷"}</span>{" "}
-        {playing ? "Pause" : failed ? "Retry film" : "Play"}
-      </button>
+      {showControls && (
+        <button
+          type="button"
+          className="video-player__control"
+          onClick={toggle}
+          aria-label={`${playing ? "Pause" : failed ? "Retry" : "Play"} ${label}`}
+        >
+          <span aria-hidden="true">{playing ? "Ⅱ" : "▷"}</span>{" "}
+          {playing ? "Pause" : failed ? "Retry film" : "Play"}
+        </button>
+      )}
       {failed && (
         <span className="video-player__error" role="status">
           Film unavailable. The still is shown; try again.
