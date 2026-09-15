@@ -15,7 +15,7 @@ assert(
 const hero = await stat(
   new URL("../dist/media/hero-loop.mp4", import.meta.url),
 );
-assert(hero.size < 750_000, `Hero video exceeded 750 KB: ${hero.size}`);
+assert(hero.size < 3_000_000, `Hero video exceeded 3 MB: ${hero.size}`);
 const media = await readdir(new URL("../dist/media/", import.meta.url));
 let total = 0;
 for (const file of media.filter((file) => file.endsWith(".mp4"))) {

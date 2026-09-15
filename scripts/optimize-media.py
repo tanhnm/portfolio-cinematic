@@ -1,5 +1,6 @@
 """Generate web derivatives; original footage stays untouched. Requires imageio-ffmpeg."""
 from pathlib import Path
+import argparse
 import json
 import subprocess
 import sys
@@ -14,16 +15,24 @@ output = ROOT / 'public/media'
 output.mkdir(parents=True, exist_ok=True)
 report = []
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--hero-only', action='store_true', help='Regenerate only the hero derivative.'
+)
+args = parser.parse_args()
+
 def encode(args):
     subprocess.run([binary, '-hide_banner', '-loglevel', 'error', '-y', *args], check=True)
 
-for film in sorted(source.glob('*.mp4')):
-    name = film.stem
-    target = output / f'{name}.mp4'
-    encode(['-i', str(film), '-an', '-vf', "scale='min(1280,iw)':-2,fps=24", '-c:v', 'libx264', '-crf', '27', '-preset', 'fast', '-threads', '2', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(target)])
-    encode(['-ss', '1', '-i', str(film), '-frames:v', '1', '-vf', "scale='min(1280,iw)':-2", '-quality', '78', str(output / f'{name}.webp')])
-    report.append({'file': film.name, 'originalBytes': film.stat().st_size, 'webBytes': target.stat().st_size})
-    print(json.dumps(report[-1]), flush=True)
+if not args.hero_only:
+    for film in sorted(source.glob('*.mp4')):
+        name = film.stem
+        target = output / f'{name}.mp4'
+        encode(['-i', str(film), '-an', '-vf', "scale='min(1280,iw)':-2,fps=24", '-c:v', 'libx264', '-crf', '27', '-preset', 'fast', '-threads', '2', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(target)])
+        encode(['-ss', '1', '-i', str(film), '-frames:v', '1', '-vf', "scale='min(1280,iw)':-2", '-quality', '78', str(output / f'{name}.webp')])
+        report.append({'file': film.name, 'originalBytes': film.stat().st_size, 'webBytes': target.stat().st_size})
+        print(json.dumps(report[-1]), flush=True)
 
-encode(['-i', str(source / 'PhuYenShort-1.mp4'), '-t', '12', '-an', '-vf', 'scale=960:-2,fps=24', '-c:v', 'libx264', '-crf', '28', '-preset', 'fast', '-threads', '2', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(output / 'hero-loop.mp4')])
-(output / 'sizes.json').write_text(json.dumps(report, indent=2))
+encode(['-i', str(source / 'PhuYenShort-1.mp4'), '-t', '12', '-an', '-vf', "scale='min(1440,iw)':-2,fps=24", '-c:v', 'libx264', '-crf', '25', '-preset', 'slow', '-threads', '2', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', str(output / 'hero-loop.mp4')])
+if not args.hero_only:
+    (output / 'sizes.json').write_text(json.dumps(report, indent=2))
