@@ -12,6 +12,7 @@ import { Tabs } from "../src/components/ui/Tabs";
 import { CopyEmail } from "../src/components/ui/CopyEmail";
 import { VideoPlayer } from "../src/components/VideoPlayer";
 import { usePortfolioJourney } from "../src/hooks/usePortfolioJourney";
+import { useScrollReveal } from "../src/hooks/useScrollReveal";
 
 let reducedMotion = false;
 let intersect: (entries: Partial<IntersectionObserverEntry>[]) => void;
@@ -238,5 +239,79 @@ describe("chapter transitions", () => {
     expect(document.body.style.overflow).toBe("");
     unmount();
     expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
+describe("scroll reveals", () => {
+  it("reveals an observed section once and stops observing it", () => {
+    let callback: IntersectionObserverCallback;
+    const unobserve = vi.fn();
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(next: IntersectionObserverCallback) {
+          callback = next;
+        }
+        observe() {}
+        unobserve = unobserve;
+        disconnect() {}
+      },
+    );
+    const root = document.createElement("main");
+    const section = document.createElement("section");
+    section.dataset.reveal = "";
+    root.append(section);
+    document.body.append(root);
+    const { unmount } = renderHook(() => useScrollReveal({ current: root }));
+    act(() =>
+      callback(
+        [{ target: section, isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      ),
+    );
+    expect(section.classList.contains("is-visible")).toBe(true);
+    expect(unobserve).toHaveBeenCalledWith(section);
+    unmount();
+    root.remove();
+  });
+
+  it("shows content immediately for reduced motion", () => {
+    reducedMotion = true;
+    const root = document.createElement("main");
+    const section = document.createElement("section");
+    section.dataset.reveal = "";
+    root.append(section);
+    document.body.append(root);
+    const { unmount } = renderHook(() => useScrollReveal({ current: root }));
+    expect(section.classList.contains("is-visible")).toBe(true);
+    unmount();
+    root.remove();
+  });
+
+  it("observes reveal content added by a lazy section", async () => {
+    const observeSpy = vi.fn();
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor() {}
+        observe(item: Element) {
+          observeSpy(item);
+        }
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    const root = document.createElement("main");
+    document.body.append(root);
+    const { unmount } = renderHook(() => useScrollReveal({ current: root }));
+    const section = document.createElement("section");
+    section.dataset.reveal = "";
+    await act(async () => {
+      root.append(section);
+      await Promise.resolve();
+    });
+    expect(observeSpy).toHaveBeenCalledWith(section);
+    unmount();
+    root.remove();
   });
 });

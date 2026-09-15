@@ -8,6 +8,7 @@ import {
   usePortfolioJourney,
   type PortfolioMode,
 } from "./hooks/usePortfolioJourney";
+import { useScrollReveal } from "./hooks/useScrollReveal";
 
 const AboutSection = lazy(() => import("./components/AboutSection"));
 const CinematicGallery = lazy(() => import("./components/CinematicGallery"));
@@ -228,6 +229,8 @@ export default function App() {
     finish,
     canAutoTransition,
   } = usePortfolioJourney();
+  const contentRef = useRef<HTMLElement>(null);
+  useScrollReveal(contentRef, mode);
   const transitioning = stage !== "idle";
   return (
     <div
@@ -270,6 +273,7 @@ export default function App() {
       </p>
       <main
         id="top"
+        ref={contentRef}
         tabIndex={-1}
         className={`mode-content mode-content--${mode}`}
         inert={transitioning}

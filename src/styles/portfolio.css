@@ -575,9 +575,27 @@ kbd {
   line-height: 1.04;
   letter-spacing: -0.055em;
 }
-[data-reveal] {
+/* Content remains visible before JavaScript opts into viewport reveals. */
+.has-scroll-reveal [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 540ms ease,
+    transform 720ms var(--ease-out);
+  will-change: opacity, transform;
+}
+.has-scroll-reveal [data-reveal].is-visible {
   opacity: 1;
-  transform: none;
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+}
+.has-scroll-reveal .engineering-intro[data-reveal],
+.has-scroll-reveal .cinematic-outro[data-reveal],
+.has-scroll-reveal .films-section[data-reveal] {
+  transform: translate3d(0, 32px, 0);
+}
+.has-scroll-reveal #pc-tool-agent-detail [data-reveal] {
+  transition-delay: 50ms;
 }
 #about > section > div:first-child {
   text-align: left;
@@ -1161,6 +1179,11 @@ kbd {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+  .has-scroll-reveal [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 @media print {
