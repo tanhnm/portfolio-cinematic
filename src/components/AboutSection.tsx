@@ -138,7 +138,7 @@ export default function AboutSection() {
       id="about-detail"
       tabIndex={-1}
       className="border-t-2 border-black bg-[#f7f7f2]"
-      data-reveal
+      data-reveal="headline"
     >
       <SectionHeading
         kicker="About me"
@@ -169,6 +169,7 @@ export default function AboutSection() {
                 <article
                   key={job.company}
                   className={`experience-card ${job.highlight ? "experience-card--featured" : ""}`}
+                  data-reveal="card"
                 >
                   <div className="experience-card__rail" aria-hidden="true">
                     <span>{String(index + 1).padStart(2, "0")}</span>

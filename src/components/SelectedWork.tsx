@@ -83,7 +83,7 @@ export function SelectedWork() {
       tabIndex={-1}
       aria-labelledby="work-title"
     >
-      <div className="section-intro">
+      <div className="section-intro" data-reveal="headline">
         <div>
           <p className="eyebrow">Selected work / 01—02</p>
           <h2 id="work-title">
@@ -99,7 +99,12 @@ export function SelectedWork() {
         </p>
       </div>
 
-      <article id="pc-tool-agent" className="project-story" tabIndex={-1}>
+      <article
+        id="pc-tool-agent"
+        className="project-story"
+        tabIndex={-1}
+        data-reveal="stage"
+      >
         <div className="project-story__brief">
           <div className="project-story__meta">
             <span>01 / Automation</span>
@@ -192,6 +197,7 @@ export function SelectedWork() {
         id="veogiao"
         className="project-story project-story--delivery"
         tabIndex={-1}
+        data-reveal="stage"
       >
         <div className="project-story__brief">
           <div className="project-story__meta">

@@ -32,7 +32,7 @@ const PRACTICE = [
 
 function EngineeringIntroduction({ onExplore }: { onExplore: () => void }) {
   return (
-    <section className="engineering-intro" data-reveal>
+    <section className="engineering-intro" data-reveal="headline">
       <div className="engineering-intro__headline">
         <p className="eyebrow">Engineering practice</p>
         <h2>
@@ -114,7 +114,7 @@ function ChapterTransition({
 
 function CinematicOutro({ onReturn }: { onReturn: () => void }) {
   return (
-    <section className="cinematic-outro" data-reveal>
+    <section className="cinematic-outro" data-reveal="headline">
       <p className="eyebrow">End credits</p>
       <h2>
         The eye behind the
@@ -134,7 +134,12 @@ function CinematicOutro({ onReturn }: { onReturn: () => void }) {
 
 function Contact() {
   return (
-    <section id="contact" className="contact-section" tabIndex={-1}>
+    <section
+      id="contact"
+      className="contact-section"
+      tabIndex={-1}
+      data-reveal="stage"
+    >
       <div>
         <p className="eyebrow">Good work starts with a conversation</p>
         <h2>

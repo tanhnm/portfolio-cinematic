@@ -53,8 +53,8 @@ const FILMS = [
 
 export default function CinematicGallery() {
   return (
-    <section className="films-section" aria-label="Film journal" data-reveal>
-      <div className="films-intro">
+    <section className="films-section" aria-label="Film journal">
+      <div className="films-intro" data-reveal="headline">
         <div>
           <p className="eyebrow">Selected visual studies</p>
           <span>2025 / Vietnam</span>
@@ -74,6 +74,7 @@ export default function CinematicGallery() {
           <article
             key={film.title}
             className={`film-card film-card--${index + 1}`}
+            data-reveal="film"
           >
             <VideoPlayer
               src={film.src}
